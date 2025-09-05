@@ -45,6 +45,60 @@ class ConcursoBandasApp:
         print("Se abrió la ventana: Ranking Final")
         tk.Toplevel(self.ventana).title("Ranking Final")
 
+class Participante:
+    def __init__(self,nombre,institucion):
+        self.nombre = nombre
+        self.institucion = institucion
+
+    def mostrar_info(self):
+        print(f"Nombre: {self.nombre}, Institucion: {self.institucion}" )
+
+class BandaEscolar(Participante):
+    Categorias_validas = ['Primaria', 'Básico', 'Diversificado']
+    Criterios_validos = ['ritmo', 'uniformidad', 'coreografía', 'alineación', 'puntualidad']
+
+    def __init__(self,nombre,institucion,categoria,puntuaje,promedio):
+        super().__init__(nombre,institucion)
+        self.set_categoria(categoria)
+        self._puntuaje = puntuaje
+        self.total = 0
+        self.promedio = promedio
+        self.registrar_puntaje = {}
+
+    def set_categoria(self, categoria):
+        if categoria not in self.Categorias_validas:
+            raise ValueError(f"Categoría inválida: {categoria}")
+        self._categoria = categoria
+
+    def registrar_puntajes(self, puntajes):
+        for criterio in self.Criterios_validos:
+            if criterio not in puntajes:
+                raise ValueError(f"Falta el criterio de evaluación: {criterio}")
+
+        for criterio in puntajes:
+            if criterio not in self.Criterios_validos:
+                raise ValueError(f"Criterio inválido: {criterio}")
+
+        for criterio, valor in puntajes.items():
+            if not isinstance(valor, (int, float)) or not (0 <= valor <= 10):
+                raise ValueError(f"Puntaje inválido en '{criterio}': {valor}")
+
+        self._puntajes = puntajes
+
+    def suma_puntajes(self):
+        self.total += self._puntajes
+
+    def promedio(self):
+        self.promedio = self.total / len(self._puntajes)
+
+    def mostrar_info(self):
+        print(f"Nombre: {self.nombre}, Institucion: {self.institucion}, Categoria: {self._categoria}, Total: {self.total}")
+
+class Concurso:
+    def __init__(self,nombre,fecha):
+        self.nombre = nombre
+        self.fecha = fecha
+        self.banda = {}
 
 if __name__ == "__main__":
     ConcursoBandasApp()
