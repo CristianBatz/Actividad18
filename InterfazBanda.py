@@ -30,8 +30,19 @@ class ConcursoBandasApp:
         self.ventana.config(menu=barra)
 
     def inscribir_banda(self):
-        print("Se abrió la ventana: Inscribir Banda")
-        tk.Toplevel(self.ventana).title("Inscribir Banda")
+        ventana_inscribir = tk.Toplevel(self.ventana)
+        ventana_inscribir.title("Inscribir Banda")
+
+        tk.Label(ventana_inscribir, text="Nombre de la banda:").pack(pady=5)
+        entrada_nombre = tk.Entry(ventana_inscribir)
+        entrada_nombre.pack(pady=5)
+
+        def guardar():
+            nombre = entrada_nombre.get()
+            print(f"Banda inscrita: {nombre}")
+            ventana_inscribir.destroy()
+
+        tk.Button(ventana_inscribir, text="Guardar", command=guardar).pack(pady=10)
 
     def registrar_evaluacion(self):
         print("Se abrió la ventana: Registrar Evaluación")
