@@ -98,7 +98,27 @@ class Concurso:
     def __init__(self,nombre,fecha):
         self.nombre = nombre
         self.fecha = fecha
-        self.banda = {}
+        self.bandas = {}
+
+    def inscribir_banda(self,banda):
+        if banda.nombre in self.bandas:
+            raise ValueError(f"La banda '{banda.nombre}' ya está inscrita.")
+        self.bandas[banda.nombre] = banda
+
+    def registrar_evaluacion(self, nombre_banda, puntajes):
+        if nombre_banda not in self.bandas:
+            raise ValueError(f"La banda '{nombre_banda}' no está inscrita.")
+        self.bandas[nombre_banda].registrar_puntajes(puntajes)
+
+    def listar_bandas(self):
+        print("\n--- Bandas Inscritas ---")
+        for banda in self.bandas.values():
+            print(banda.mostrar_info())
+
+    def ranking(self):
+        print("\n--- Ranking Final ---")
+        for banda in self.bandas.values():
+            print(banda.mostrar_info())
 
 if __name__ == "__main__":
     ConcursoBandasApp()
