@@ -33,6 +33,7 @@ class ConcursoBandasApp:
     def inscribir_banda(self):
         ventana_inscribir = tk.Toplevel(self.ventana)
         ventana_inscribir.title("Inscribir Banda")
+        ventana_inscribir.geometry("500x300")
 
         tk.Label(ventana_inscribir, text="Nombre de la banda:").pack(pady=5)
         entrada_nombre = tk.Entry(ventana_inscribir)
@@ -64,6 +65,7 @@ class ConcursoBandasApp:
     def registrar_evaluacion(self):
         ventana_eval = tk.Toplevel(self.ventana)
         ventana_eval.title("Registrar Evaluación")
+        ventana_eval.geometry("500x300")
 
         tk.Label(ventana_eval, text="Nombre de la banda:").pack()
         entrada_nombre = tk.Entry(ventana_eval)
@@ -94,14 +96,28 @@ class ConcursoBandasApp:
         tk.Button(ventana_eval, text="Guardar", command=guardar).pack(pady=10)
 
     def listar_bandas(self):
-        print("Se abrió la ventana: Listado de Bandas")
-        tk.Toplevel(self.ventana).title("Listado de Bandas")
-        self.concurso.listar_bandas()
+        ventana_listar = tk.Toplevel(self.ventana)
+        ventana_listar.title("Listado de Bandas")
+        ventana_listar.geometry("400x400")
+
+        tk.Label(ventana_listar, text="--- Bandas Inscritas ---", font=("Arial", 12, "bold")).pack(pady=5)
+
+        for banda in self.concurso.bandas.values():
+            tk.Label(ventana_listar, text=banda.mostrar_info()).pack()
 
     def ver_ranking(self):
-        print("Se abrió la ventana: Ranking Final")
-        tk.Toplevel(self.ventana).title("Ranking Final")
-        self.concurso.ranking()
+        ventana_ranking = tk.Toplevel(self.ventana)
+        ventana_ranking.title("Ranking Final")
+        ventana_ranking.geometry("400x400")
+
+        tk.Label(ventana_ranking, text="--- Ranking Final ---", font=("Arial", 12, "bold")).pack(pady=5)
+
+        ordenador = Ordenamiento()
+        bandas_ordenadas = ordenador.quick_sort_bandas(list(self.concurso.bandas.values()))
+        bandas_ordenadas.reverse()
+        for banda in bandas_ordenadas:
+            tk.Label(ventana_ranking, text=banda.mostrar_info()).pack()
+
 
 class Participante:
     def __init__(self,nombre,institucion):
@@ -123,41 +139,36 @@ class BandaEscolar(Participante):
         self.promedio = promedio
 
     def set_categoria(self, categoria):
+        categoria = categoria.strip().capitalize()
         if categoria not in self.Categorias_validas:
-            raise ValueError(f"Categoría inválida: {categoria}")
+            self.Categorias_validas.append(categoria)
         self._categoria = categoria
 
     def registrar_puntajes(self, puntajes):
-        for criterio in self.Criterios_validos:
-            if criterio not in puntajes:
-                raise ValueError(f"Falta el criterio de evaluación: {criterio}")
-
-        for criterio in puntajes:
-            if criterio not in self.Criterios_validos:
-                raise ValueError(f"Criterio inválido: {criterio}")
-
+        puntajes_normalizados = {}
         for criterio, valor in puntajes.items():
-            if not isinstance(valor, (int, float)) or not (0 <= valor <= 10):
-                raise ValueError(f"Puntaje inválido en '{criterio}': {valor}")
-
-        self._puntajes = puntajes
+            criterio = criterio.strip().lower()
+            puntajes_normalizados[criterio] = valor
+            if criterio not in self.Criterios_validos:
+                self.Criterios_validos.append(criterio)
+        self._puntuajes = puntajes_normalizados
         self.suma_puntajes()
         self.calcular_promedio()
 
     def suma_puntajes(self):
-        self.total = sum(self._puntajes.values())
+        self.total = sum(self._puntuajes.values())
 
     def calcular_promedio(self):
-        if self._puntajes:
-            self.promedio = self.total / len(self._puntajes)
+        if self._puntuajes:
+            self.promedio = self.total / len(self._puntuajes)
         else:
             self.promedio = 0
 
     def mostrar_info(self):
-        if self._puntajes:
-            return f"{self.nombre} ({self._categoria}) - {self.institucion} | Total: {self.total}"
+        if self._puntuajes:
+            return f"Nombre:{self.nombre}, Categoria:({self._categoria}), Instituto: {self.institucion} | Total: {self.total}"
         else:
-            return f"{self.nombre} ({self._categoria}) - {self.institucion} | Sin evaluar"
+            return f"Nombre:{self.nombre}, Categoria:({self._categoria}), Instituto: {self.institucion} | Sin evaluar"
 
 class Concurso:
     def __init__(self,nombre,fecha):
@@ -185,5 +196,16 @@ class Concurso:
         for banda in self.bandas.values():
             print(banda.mostrar_info())
 
+class Ordenamiento:
+    def quick_sort_bandas(self,bandas):
+        if len(bandas) <= 1:
+            return bandas
+
+        pivote = bandas[0]
+        menores = [b for b in bandas[1:] if b.promedio < pivote.promedio]
+        iguales = [b for b in bandas[1:] if b.promedio == pivote.promedio]
+        mayores = [b for b in bandas[1:] if b.promedio > pivote.promedio]
+
+        return self.quick_sort_bandas(menores) + [pivote] + iguales + self.quick_sort_bandas(mayores)
 if __name__ == "__main__":
     ConcursoBandasApp()
