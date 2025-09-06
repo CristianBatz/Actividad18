@@ -6,6 +6,7 @@ class ConcursoBandasApp:
         self.ventana.title("Concurso de Bandas - Quetzaltenango")
         self.ventana.geometry("500x300")
 
+        self.concurso = Concurso("Concurso 14 de Septiembre", "2025-09-14")
         self.menu()
 
         tk.Label(
@@ -47,7 +48,15 @@ class ConcursoBandasApp:
 
         def guardar():
             nombre = entrada_nombre.get()
-            print(f"Banda inscrita: {nombre}")
+            institucion = entrada_inst.get()
+            categoria = entrada_cat.get()
+            promedio = 0
+            try:
+                banda = BandaEscolar(nombre, institucion, categoria, promedio)
+                self.concurso.inscribir_banda(banda)
+                print(f"Banda inscrita: {nombre}")
+            except ValueError as e:
+                print("Error:", e)
             ventana_inscribir.destroy()
 
         tk.Button(ventana_inscribir, text="Guardar", command=guardar).pack(pady=10)
@@ -62,7 +71,7 @@ class ConcursoBandasApp:
 
         entradas = {}
         for criterio in BandaEscolar.Criterios_validos:
-            tk.Label(ventana_eval, text=f"{criterio.capitalize()}:").pack()
+            tk.Label(ventana_eval, text=f"{criterio}:").pack()
             e = tk.Entry(ventana_eval)
             e.pack()
             entradas[criterio] = e
@@ -75,8 +84,11 @@ class ConcursoBandasApp:
                     puntajes[criterio] = float(entry.get())
                 except ValueError:
                     puntajes[criterio] = 0
-
-            print(f"Evaluación registrada para {nombre}: {puntajes}")
+            try:
+                self.concurso.registrar_evaluacion(nombre, puntajes)
+                print(f"Evaluación registrada para {nombre}: {puntajes}")
+            except ValueError as e:
+                print("Error:", e)
             ventana_eval.destroy()
 
         tk.Button(ventana_eval, text="Guardar", command=guardar).pack(pady=10)
@@ -84,10 +96,12 @@ class ConcursoBandasApp:
     def listar_bandas(self):
         print("Se abrió la ventana: Listado de Bandas")
         tk.Toplevel(self.ventana).title("Listado de Bandas")
+        self.concurso.listar_bandas()
 
     def ver_ranking(self):
         print("Se abrió la ventana: Ranking Final")
         tk.Toplevel(self.ventana).title("Ranking Final")
+        self.concurso.ranking()
 
 class Participante:
     def __init__(self,nombre,institucion):
@@ -101,13 +115,12 @@ class BandaEscolar(Participante):
     Categorias_validas = ['Primaria', 'Básico', 'Diversificado']
     Criterios_validos = ['ritmo', 'uniformidad', 'coreografía', 'alineación', 'puntualidad']
 
-    def __init__(self,nombre,institucion,categoria,puntuaje,promedio):
+    def __init__(self,nombre,institucion,categoria,promedio = 0):
         super().__init__(nombre,institucion)
         self.set_categoria(categoria)
-        self._puntuaje = puntuaje
+        self._puntuajes = {}
         self.total = 0
         self.promedio = promedio
-        self.registrar_puntaje = {}
 
     def set_categoria(self, categoria):
         if categoria not in self.Categorias_validas:
@@ -128,6 +141,8 @@ class BandaEscolar(Participante):
                 raise ValueError(f"Puntaje inválido en '{criterio}': {valor}")
 
         self._puntajes = puntajes
+        self.suma_puntajes()
+        self.calcular_promedio()
 
     def suma_puntajes(self):
         self.total = sum(self._puntajes.values())
