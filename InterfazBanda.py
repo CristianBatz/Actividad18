@@ -37,6 +37,14 @@ class ConcursoBandasApp:
         entrada_nombre = tk.Entry(ventana_inscribir)
         entrada_nombre.pack(pady=5)
 
+        tk.Label(ventana_inscribir, text="Institución:").pack(pady=5)
+        entrada_inst = tk.Entry(ventana_inscribir)
+        entrada_inst.pack(pady=5)
+
+        tk.Label(ventana_inscribir, text="Categoría (Primaria, Básico, Diversificado):").pack(pady=5)
+        entrada_cat = tk.Entry(ventana_inscribir)
+        entrada_cat.pack(pady=5)
+
         def guardar():
             nombre = entrada_nombre.get()
             print(f"Banda inscrita: {nombre}")
@@ -45,8 +53,33 @@ class ConcursoBandasApp:
         tk.Button(ventana_inscribir, text="Guardar", command=guardar).pack(pady=10)
 
     def registrar_evaluacion(self):
-        print("Se abrió la ventana: Registrar Evaluación")
-        tk.Toplevel(self.ventana).title("Registrar Evaluación")
+        ventana_eval = tk.Toplevel(self.ventana)
+        ventana_eval.title("Registrar Evaluación")
+
+        tk.Label(ventana_eval, text="Nombre de la banda:").pack()
+        entrada_nombre = tk.Entry(ventana_eval)
+        entrada_nombre.pack()
+
+        entradas = {}
+        for criterio in BandaEscolar.Criterios_validos:
+            tk.Label(ventana_eval, text=f"{criterio.capitalize()}:").pack()
+            e = tk.Entry(ventana_eval)
+            e.pack()
+            entradas[criterio] = e
+
+        def guardar():
+            nombre = entrada_nombre.get()
+            puntajes = {}
+            for criterio, entry in entradas.items():
+                try:
+                    puntajes[criterio] = float(entry.get())
+                except ValueError:
+                    puntajes[criterio] = 0
+
+            print(f"Evaluación registrada para {nombre}: {puntajes}")
+            ventana_eval.destroy()
+
+        tk.Button(ventana_eval, text="Guardar", command=guardar).pack(pady=10)
 
     def listar_bandas(self):
         print("Se abrió la ventana: Listado de Bandas")
@@ -97,13 +130,19 @@ class BandaEscolar(Participante):
         self._puntajes = puntajes
 
     def suma_puntajes(self):
-        self.total += self._puntajes
+        self.total = sum(self._puntajes.values())
 
-    def promedio(self):
-        self.promedio = self.total / len(self._puntajes)
+    def calcular_promedio(self):
+        if self._puntajes:
+            self.promedio = self.total / len(self._puntajes)
+        else:
+            self.promedio = 0
 
     def mostrar_info(self):
-        print(f"Nombre: {self.nombre}, Institucion: {self.institucion}, Categoria: {self._categoria}, Total: {self.total}")
+        if self._puntajes:
+            return f"{self.nombre} ({self._categoria}) - {self.institucion} | Total: {self.total}"
+        else:
+            return f"{self.nombre} ({self._categoria}) - {self.institucion} | Sin evaluar"
 
 class Concurso:
     def __init__(self,nombre,fecha):
