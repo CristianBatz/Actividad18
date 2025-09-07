@@ -185,19 +185,19 @@ class ConcursoBandasApp:
     def inscribir_banda(self):
         ventana_inscribir = tk.Toplevel(self.ventana)
         ventana_inscribir.title("Inscribir Banda")
-        ventana_inscribir.geometry("500x300")
+        ventana_inscribir.geometry("450x250")
 
-        tk.Label(ventana_inscribir, text="Nombre de la banda:").pack(pady=5)
+        tk.Label(ventana_inscribir, text="Nombre de la banda:").place(x=30, y=30)
         entrada_nombre = tk.Entry(ventana_inscribir)
-        entrada_nombre.pack(pady=5)
+        entrada_nombre.place(x=180, y=30)
 
-        tk.Label(ventana_inscribir, text="Institución:").pack(pady=5)
+        tk.Label(ventana_inscribir, text="Institución:").place(x=30, y=70)
         entrada_inst = tk.Entry(ventana_inscribir)
-        entrada_inst.pack(pady=5)
+        entrada_inst.place(x=180, y=70)
 
-        tk.Label(ventana_inscribir, text="Categoría (Primaria, Básico, Diversificado):").pack(pady=5)
+        tk.Label(ventana_inscribir, text="Categoría (Primaria, Básico, Diversificado)").place(x=130, y=110)
         entrada_cat = tk.Entry(ventana_inscribir)
-        entrada_cat.pack(pady=5)
+        entrada_cat.place(x=180, y=140)
 
         def guardar():
             nombre = entrada_nombre.get()
@@ -212,12 +212,12 @@ class ConcursoBandasApp:
                 print("Error:", e)
             ventana_inscribir.destroy()
 
-        tk.Button(ventana_inscribir, text="Guardar", command=guardar).pack(pady=10)
+        tk.Button(ventana_inscribir, text="Guardar", command=guardar).place(x=210, y=180)
 
     def registrar_evaluacion(self):
         ventana_eval = tk.Toplevel(self.ventana)
         ventana_eval.title("Registrar Evaluación")
-        ventana_eval.geometry("500x400")
+        ventana_eval.geometry("500x350")
 
         tk.Label(ventana_eval, text="Nombre de la banda:").pack()
         entrada_nombre = tk.Entry(ventana_eval)
