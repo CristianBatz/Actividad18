@@ -157,6 +157,7 @@ class ConcursoBandasApp:
         self.ventana = tk.Tk()
         self.ventana.title("Concurso de Bandas - Quetzaltenango")
         self.ventana.geometry("500x300")
+        self.ventana.config(bg="#2e2a2a")
 
         self.concurso = Concurso("Concurso 14 de Septiembre", "2025-09-14")
         self.menu()
@@ -165,7 +166,9 @@ class ConcursoBandasApp:
             self.ventana,
             text="Sistema de Inscripción y Evaluación de Bandas Escolares\nConcurso 14 de Septiembre - Quetzaltenango",
             font=("Arial", 12, "bold"),
-            justify="center"
+            justify="center",
+            bg = "#2e2a2a",
+            fg= "white"
         ).pack(pady=20)
 
         self.ventana.mainloop()
