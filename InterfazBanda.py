@@ -261,7 +261,7 @@ class ConcursoBandasApp:
         tk.Label(ventana_listar, text="--- Bandas Inscritas ---", font=("Arial", 12, "bold"),bg="#2e2a2a",fg= "white").pack(pady=5)
 
         for banda in self.concurso.bandas.values():
-            tk.Label(ventana_listar, text=banda.mostrar_info()).pack()
+            tk.Label(ventana_listar, text=banda.mostrar_info(),bg="#2e2a2a",fg= "white").pack()
 
     def ver_ranking(self):
         ventana_ranking = tk.Toplevel(self.ventana)
@@ -275,7 +275,7 @@ class ConcursoBandasApp:
         bandas_ordenadas = ordenador.quick_sort_bandas(list(self.concurso.bandas.values()))
         bandas_ordenadas.reverse()
         for banda in bandas_ordenadas:
-            tk.Label(ventana_ranking, text=banda.mostrar_info()).pack()
+            tk.Label(ventana_ranking, text=banda.mostrar_info(),bg="#2e2a2a",fg= "white").pack()
 
 
 if __name__ == "__main__":
