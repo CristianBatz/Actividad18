@@ -1,5 +1,157 @@
 import tkinter as tk
 
+class Participante:
+    def __init__(self,nombre,institucion):
+        self.nombre = nombre
+        self.institucion = institucion
+
+    def mostrar_info(self):
+        print(f"Nombre: {self.nombre}, Institucion: {self.institucion}" )
+
+class BandaEscolar(Participante):
+    Categorias_validas = ['Primaria', 'Basico', 'Diversificado']
+    Criterios_validos = ['ritmo', 'uniformidad', 'coreografía', 'alineación', 'puntualidad']
+
+    def __init__(self,nombre,institucion,categoria,promedio = 0):
+        super().__init__(nombre,institucion)
+        self.set_categoria(categoria)
+        self._puntajes = {}
+        self.total = 0
+        self.promedio = float(promedio)
+
+    def set_categoria(self, categoria):
+        categoria = categoria.strip().capitalize()
+        if categoria not in self.Categorias_validas:
+            raise ValueError(f"Categoría inválida: {categoria}")
+        self._categoria = categoria
+
+    def registrar_puntajes(self, puntajes):
+        for criterio in BandaEscolar.Criterios_validos:
+            if criterio not in puntajes:
+                raise ValueError(f"Falta puntaje para el criterio: {criterio}")
+            valor = puntajes[criterio]
+            if not (0 <= valor <= 10):
+                raise ValueError(f"Puntaje inválido para {criterio}: {valor}")
+        self._puntajes = puntajes
+        self.suma_puntajes()
+        self.calcular_promedio()
+
+    def suma_puntajes(self):
+        self.total = sum(self._puntajes.values())
+
+    def calcular_promedio(self):
+        if self._puntajes:
+            self.promedio = self.total / len(self._puntajes)
+        else:
+            self.promedio = 0
+
+    def mostrar_info(self):
+        if self._puntajes:
+            return f"Nombre:{self.nombre}, Categoria:({self._categoria}), Instituto: {self.institucion} | Total: {self.total}"
+        else:
+            return f"Nombre:{self.nombre}, Categoria:({self._categoria}), Instituto: {self.institucion} | Sin evaluar"
+
+class Concurso:
+    def __init__(self,nombre,fecha):
+        self.nombre = nombre
+        self.fecha = fecha
+        self.bandas = {}
+        self.cargar_bandas()
+
+    def cargar_bandas(self):
+        try:
+            with open("bandas.txt", "r", encoding="utf-8") as f:
+                for linea in f:
+                    linea = linea.strip()
+                    if linea:
+                        nombre, institucion, categoria, promedio = linea.split(":")
+                        if promedio.strip() == "":
+                            promedio_val = 0
+                        else:
+                            promedio_val = float(promedio)
+                        banda = BandaEscolar(nombre, institucion, categoria,promedio_val)
+                        self.bandas[nombre] = banda
+            print("Bandas cargadas desde archivo.")
+        except FileNotFoundError:
+            print("Archivo no encontrado")
+        except Exception as e:
+            print("Error: cargando bandas desde archivo", e)
+
+        self.cargar_puntajes()
+
+    def cargar_puntajes(self):
+        try:
+            with open("puntajes.txt", "r", encoding="utf-8") as f:
+                for linea in f:
+                    datos = linea.strip().split(":")
+                    nombre = datos[0]
+                    if nombre in self.bandas:
+                        puntajes = {
+                            'ritmo': float(datos[1]),
+                            'uniformidad': float(datos[2]),
+                            'coreografía': float(datos[3]),
+                            'alineación': float(datos[4]),
+                            'puntualidad': float(datos[5])
+                        }
+                        self.bandas[nombre]._puntajes = puntajes
+                        self.bandas[nombre].suma_puntajes()
+                        self.bandas[nombre].calcular_promedio()
+            print("Puntajes cargados desde archivo.")
+        except FileNotFoundError:
+            print("Archivo no encontrado")
+        except Exception as e:
+            print("Error: cargando puntuajes desde archivo", e)
+
+    def guardar_bandas(self):
+        with open("bandas.txt", "w", encoding="utf-8") as f:
+            for banda in self.bandas.values():
+                f.write(f"{banda.nombre}:{banda.institucion}:{banda._categoria}:{banda.promedio}\n")
+
+    def guardar_puntajes(self):
+        with open("puntajes.txt", "w", encoding="utf-8") as f:
+            for banda in self.bandas.values():
+                ritmo = banda._puntajes.get('ritmo', 0)
+                uniformidad = banda._puntajes.get('uniformidad', 0)
+                coreografia = banda._puntajes.get('coreografía', 0)
+                alineacion = banda._puntajes.get('alineación', 0)
+                puntualidad = banda._puntajes.get('puntualidad', 0)
+                f.write(f"{banda.nombre}:{ritmo}:{uniformidad}:{coreografia}:{alineacion}:{puntualidad}\n")
+
+    def inscribir_banda(self,banda):
+        if banda.nombre in self.bandas:
+            raise ValueError(f"La banda '{banda.nombre}' ya está inscrita.")
+        self.bandas[banda.nombre] = banda
+        self.guardar_bandas()
+
+    def registrar_evaluacion(self, nombre_banda, puntajes):
+        if nombre_banda not in self.bandas:
+            raise ValueError(f"La banda '{nombre_banda}' no está inscrita.")
+        self.bandas[nombre_banda].registrar_puntajes(puntajes)
+        self.guardar_bandas()
+        self.guardar_puntajes()
+
+    def listar_bandas(self):
+        print("\n--- Bandas Inscritas ---")
+        for banda in self.bandas.values():
+            print(banda.mostrar_info())
+
+    def ranking(self):
+        print("\n--- Ranking Final ---")
+        for banda in self.bandas.values():
+            print(banda.mostrar_info())
+
+class Ordenamiento:
+    def quick_sort_bandas(self,bandas):
+        if len(bandas) <= 1:
+            return bandas
+
+        pivote = bandas[0]
+        mayores = [b for b in bandas[1:] if b.promedio > pivote.promedio]
+        iguales = [b for b in bandas[1:] if b.promedio == pivote.promedio]
+        menores = [b for b in bandas[1:] if b.promedio < pivote.promedio]
+
+        return self.quick_sort_bandas(menores) + [pivote] + iguales + self.quick_sort_bandas(mayores)
+
 class ConcursoBandasApp:
     def __init__(self):
         self.ventana = tk.Tk()
@@ -14,7 +166,7 @@ class ConcursoBandasApp:
             text="Sistema de Inscripción y Evaluación de Bandas Escolares\nConcurso 14 de Septiembre - Quetzaltenango",
             font=("Arial", 12, "bold"),
             justify="center"
-        ).pack(pady=50)
+        ).pack(pady=20)
 
         self.ventana.mainloop()
 
@@ -65,7 +217,7 @@ class ConcursoBandasApp:
     def registrar_evaluacion(self):
         ventana_eval = tk.Toplevel(self.ventana)
         ventana_eval.title("Registrar Evaluación")
-        ventana_eval.geometry("500x300")
+        ventana_eval.geometry("500x400")
 
         tk.Label(ventana_eval, text="Nombre de la banda:").pack()
         entrada_nombre = tk.Entry(ventana_eval)
@@ -73,9 +225,9 @@ class ConcursoBandasApp:
 
         entradas = {}
         for criterio in BandaEscolar.Criterios_validos:
-            tk.Label(ventana_eval, text=f"{criterio}:").pack()
+            tk.Label(ventana_eval, text=f"{criterio}:").pack(pady=2)
             e = tk.Entry(ventana_eval)
-            e.pack()
+            e.pack(pady=2)
             entradas[criterio] = e
 
         def guardar():
@@ -98,7 +250,7 @@ class ConcursoBandasApp:
     def listar_bandas(self):
         ventana_listar = tk.Toplevel(self.ventana)
         ventana_listar.title("Listado de Bandas")
-        ventana_listar.geometry("400x400")
+        ventana_listar.geometry("450x400")
 
         tk.Label(ventana_listar, text="--- Bandas Inscritas ---", font=("Arial", 12, "bold")).pack(pady=5)
 
@@ -108,7 +260,7 @@ class ConcursoBandasApp:
     def ver_ranking(self):
         ventana_ranking = tk.Toplevel(self.ventana)
         ventana_ranking.title("Ranking Final")
-        ventana_ranking.geometry("400x400")
+        ventana_ranking.geometry("450x400")
 
         tk.Label(ventana_ranking, text="--- Ranking Final ---", font=("Arial", 12, "bold")).pack(pady=5)
 
@@ -119,93 +271,5 @@ class ConcursoBandasApp:
             tk.Label(ventana_ranking, text=banda.mostrar_info()).pack()
 
 
-class Participante:
-    def __init__(self,nombre,institucion):
-        self.nombre = nombre
-        self.institucion = institucion
-
-    def mostrar_info(self):
-        print(f"Nombre: {self.nombre}, Institucion: {self.institucion}" )
-
-class BandaEscolar(Participante):
-    Categorias_validas = ['Primaria', 'Básico', 'Diversificado']
-    Criterios_validos = ['ritmo', 'uniformidad', 'coreografía', 'alineación', 'puntualidad']
-
-    def __init__(self,nombre,institucion,categoria,promedio = 0):
-        super().__init__(nombre,institucion)
-        self.set_categoria(categoria)
-        self._puntuajes = {}
-        self.total = 0
-        self.promedio = promedio
-
-    def set_categoria(self, categoria):
-        categoria = categoria.strip().capitalize()
-        if categoria not in self.Categorias_validas:
-            self.Categorias_validas.append(categoria)
-        self._categoria = categoria
-
-    def registrar_puntajes(self, puntajes):
-        puntajes_normalizados = {}
-        for criterio, valor in puntajes.items():
-            criterio = criterio.strip().lower()
-            puntajes_normalizados[criterio] = valor
-            if criterio not in self.Criterios_validos:
-                self.Criterios_validos.append(criterio)
-        self._puntuajes = puntajes_normalizados
-        self.suma_puntajes()
-        self.calcular_promedio()
-
-    def suma_puntajes(self):
-        self.total = sum(self._puntuajes.values())
-
-    def calcular_promedio(self):
-        if self._puntuajes:
-            self.promedio = self.total / len(self._puntuajes)
-        else:
-            self.promedio = 0
-
-    def mostrar_info(self):
-        if self._puntuajes:
-            return f"Nombre:{self.nombre}, Categoria:({self._categoria}), Instituto: {self.institucion} | Total: {self.total}"
-        else:
-            return f"Nombre:{self.nombre}, Categoria:({self._categoria}), Instituto: {self.institucion} | Sin evaluar"
-
-class Concurso:
-    def __init__(self,nombre,fecha):
-        self.nombre = nombre
-        self.fecha = fecha
-        self.bandas = {}
-
-    def inscribir_banda(self,banda):
-        if banda.nombre in self.bandas:
-            raise ValueError(f"La banda '{banda.nombre}' ya está inscrita.")
-        self.bandas[banda.nombre] = banda
-
-    def registrar_evaluacion(self, nombre_banda, puntajes):
-        if nombre_banda not in self.bandas:
-            raise ValueError(f"La banda '{nombre_banda}' no está inscrita.")
-        self.bandas[nombre_banda].registrar_puntajes(puntajes)
-
-    def listar_bandas(self):
-        print("\n--- Bandas Inscritas ---")
-        for banda in self.bandas.values():
-            print(banda.mostrar_info())
-
-    def ranking(self):
-        print("\n--- Ranking Final ---")
-        for banda in self.bandas.values():
-            print(banda.mostrar_info())
-
-class Ordenamiento:
-    def quick_sort_bandas(self,bandas):
-        if len(bandas) <= 1:
-            return bandas
-
-        pivote = bandas[0]
-        menores = [b for b in bandas[1:] if b.promedio < pivote.promedio]
-        iguales = [b for b in bandas[1:] if b.promedio == pivote.promedio]
-        mayores = [b for b in bandas[1:] if b.promedio > pivote.promedio]
-
-        return self.quick_sort_bandas(menores) + [pivote] + iguales + self.quick_sort_bandas(mayores)
 if __name__ == "__main__":
     ConcursoBandasApp()
