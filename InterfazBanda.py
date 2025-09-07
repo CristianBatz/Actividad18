@@ -189,17 +189,18 @@ class ConcursoBandasApp:
         ventana_inscribir = tk.Toplevel(self.ventana)
         ventana_inscribir.title("Inscribir Banda")
         ventana_inscribir.geometry("450x250")
+        ventana_inscribir.config(bg="#2e2a2a")
 
-        tk.Label(ventana_inscribir, text="Nombre de la banda:").place(x=30, y=30)
-        entrada_nombre = tk.Entry(ventana_inscribir)
+        tk.Label(ventana_inscribir, text="Nombre de la banda:",bg="#2e2a2a",fg= "white").place(x=30, y=30)
+        entrada_nombre = tk.Entry(ventana_inscribir, bg="#b8b6b6")
         entrada_nombre.place(x=180, y=30)
 
-        tk.Label(ventana_inscribir, text="Institución:").place(x=30, y=70)
-        entrada_inst = tk.Entry(ventana_inscribir)
+        tk.Label(ventana_inscribir, text="Institución:",bg="#2e2a2a",fg= "white").place(x=30, y=70)
+        entrada_inst = tk.Entry(ventana_inscribir, bg="#b8b6b6")
         entrada_inst.place(x=180, y=70)
 
-        tk.Label(ventana_inscribir, text="Categoría (Primaria, Básico, Diversificado)").place(x=130, y=110)
-        entrada_cat = tk.Entry(ventana_inscribir)
+        tk.Label(ventana_inscribir, text="Categoría (Primaria, Básico, Diversificado)",bg="#2e2a2a",fg= "white").place(x=130, y=110)
+        entrada_cat = tk.Entry(ventana_inscribir, bg="#b8b6b6")
         entrada_cat.place(x=180, y=140)
 
         def guardar():
@@ -215,21 +216,22 @@ class ConcursoBandasApp:
                 print("Error:", e)
             ventana_inscribir.destroy()
 
-        tk.Button(ventana_inscribir, text="Guardar", command=guardar).place(x=210, y=180)
+        tk.Button(ventana_inscribir, text="Guardar", command=guardar,bg="#4a90e2").place(x=210, y=180)
 
     def registrar_evaluacion(self):
         ventana_eval = tk.Toplevel(self.ventana)
         ventana_eval.title("Registrar Evaluación")
-        ventana_eval.geometry("500x350")
+        ventana_eval.geometry("460x350")
+        ventana_eval.config(bg="#2e2a2a")
 
-        tk.Label(ventana_eval, text="Nombre de la banda:").pack()
-        entrada_nombre = tk.Entry(ventana_eval)
+        tk.Label(ventana_eval, text="Nombre de la banda:",bg="#2e2a2a",fg= "white").pack()
+        entrada_nombre = tk.Entry(ventana_eval, bg="#b8b6b6")
         entrada_nombre.pack()
 
         entradas = {}
         for criterio in BandaEscolar.Criterios_validos:
-            tk.Label(ventana_eval, text=f"{criterio}:").pack(pady=2)
-            e = tk.Entry(ventana_eval)
+            tk.Label(ventana_eval, text=f"{criterio}:",bg="#2e2a2a",fg= "white").pack(pady=2)
+            e = tk.Entry(ventana_eval, bg="#b8b6b6")
             e.pack(pady=2)
             entradas[criterio] = e
 
@@ -248,14 +250,15 @@ class ConcursoBandasApp:
                 print("Error:", e)
             ventana_eval.destroy()
 
-        tk.Button(ventana_eval, text="Guardar", command=guardar).pack(pady=10)
+        tk.Button(ventana_eval, text="Guardar", command=guardar,bg="#4a90e2").pack(pady=10)
 
     def listar_bandas(self):
         ventana_listar = tk.Toplevel(self.ventana)
         ventana_listar.title("Listado de Bandas")
         ventana_listar.geometry("450x400")
+        ventana_listar.config(bg="#2e2a2a")
 
-        tk.Label(ventana_listar, text="--- Bandas Inscritas ---", font=("Arial", 12, "bold")).pack(pady=5)
+        tk.Label(ventana_listar, text="--- Bandas Inscritas ---", font=("Arial", 12, "bold"),bg="#2e2a2a",fg= "white").pack(pady=5)
 
         for banda in self.concurso.bandas.values():
             tk.Label(ventana_listar, text=banda.mostrar_info()).pack()
@@ -264,8 +267,9 @@ class ConcursoBandasApp:
         ventana_ranking = tk.Toplevel(self.ventana)
         ventana_ranking.title("Ranking Final")
         ventana_ranking.geometry("450x400")
+        ventana_ranking.config(bg="#2e2a2a")
 
-        tk.Label(ventana_ranking, text="--- Ranking Final ---", font=("Arial", 12, "bold")).pack(pady=5)
+        tk.Label(ventana_ranking, text="--- Ranking Final ---", font=("Arial", 12, "bold"),bg="#2e2a2a",fg= "white").pack(pady=5)
 
         ordenador = Ordenamiento()
         bandas_ordenadas = ordenador.quick_sort_bandas(list(self.concurso.bandas.values()))
