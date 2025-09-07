@@ -216,7 +216,7 @@ class ConcursoBandasApp:
                 print("Error:", e)
             ventana_inscribir.destroy()
 
-        tk.Button(ventana_inscribir, text="Guardar", command=guardar,bg="#4a90e2").place(x=210, y=180)
+        tk.Button(ventana_inscribir, text="Guardar", command=guardar,bg="#4a90e2",relief="raised",bd=4,activebackground="#357ABD",activeforeground="white").place(x=215, y=180)
 
     def registrar_evaluacion(self):
         ventana_eval = tk.Toplevel(self.ventana)
@@ -250,7 +250,7 @@ class ConcursoBandasApp:
                 print("Error:", e)
             ventana_eval.destroy()
 
-        tk.Button(ventana_eval, text="Guardar", command=guardar,bg="#4a90e2").pack(pady=10)
+        tk.Button(ventana_eval, text="Guardar", command=guardar,bg="#4a90e2",relief="raised",bd=4,activebackground="#357ABD",activeforeground="white").pack(pady=10)
 
     def listar_bandas(self):
         ventana_listar = tk.Toplevel(self.ventana)
